@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   hello-gitops:
   - apiVersion: v2
+    appVersion: 0.0.6
+    created: "2022-10-10T17:37:47.017098431Z"
+    description: A Helm chart for Kubernetes
+    digest: 124e8579335933c059918d2ab14145a307b869006312ea6ecdd6da78261ade49
+    name: hello-gitops
+    type: application
+    urls:
+    - https://jeremymv2.github.io/gitops-demo/hello-gitops-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     appVersion: 0.0.5
     created: "2022-10-10T16:44:20.570859955Z"
     description: A Helm chart for Kubernetes
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://jeremymv2.github.io/gitops-demo/hello-gitops-0.1.0.tgz
     version: 0.1.0
-generated: "2022-10-10T16:44:20.570167246Z"
+generated: "2022-10-10T17:37:47.016127627Z"
