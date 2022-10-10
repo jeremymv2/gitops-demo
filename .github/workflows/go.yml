@@ -1,0 +1,50 @@
+name: Main
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  detect_changes:
+    runs-on: ubuntu-latest
+    # Set job outputs to values from filter step
+    outputs:
+      build: ${{ steps.filter.outputs.build }}
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v2
+      with:
+        ref: main
+
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          build:
+            - 'src/**'
+
+  bump_build_push:
+    needs: detect_changes
+    if: ${{ needs.detect_changes.outputs.build == 'true' }}
+    name: Bump Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: main
+      - name: Version Bump Action
+        id: version-bump
+        uses: 'phips28/gh-action-bump-version@master'
+        with:
+          skip-commit: 'true'
+          skip-tag: 'true'
+          skip-push: 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Output Step'
+        run: echo "new version tag ${{ steps.version-bump.outputs.newTag }}"
+      - name: Update chart Version
+        run: |
+          sed -i 's/^appVersion.*/appVersion: "${{ steps.version-bump.outpus.newTag }}"/' helm/hello-gitops/Chart.yaml
+          cat helm/hello-gitops/Chart.yaml
