@@ -41,10 +41,25 @@ jobs:
           skip-tag: 'true'
           skip-push: 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TOKEN: ${{ secrets.TOKEN }}
       - name: 'Output Step'
         run: echo "new version tag ${{ steps.version-bump.outputs.newTag }}"
       - name: Update chart Version
         run: |
-          sed -i 's/^appVersion.*/appVersion: "${{ steps.version-bump.outpus.newTag }}"/' helm/hello-gitops/Chart.yaml
+          sed -i 's/^appVersion.*/appVersion: "${{ steps.version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
           cat helm/hello-gitops/Chart.yaml
+      - name: Commit Files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "CI: Bump to version ${{ steps.version-bump.outputs.newTag }}"
+      - name: Tag repo
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.version-bump.outputs.newTag }}
+          message: "CI: bump to new version ${{ steps.version-bump.outputs.newTag }}"
+      - name: Push Changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          tags: true
