@@ -5,5 +5,5 @@ type: application
 version: "0.1.0"
 dependencies:
 - name: hello-gitops
-  version: "0.1.1"
+  version: "0.1.2"
   repository: "https://jeremymv2.github.io/gitops-demo/"
