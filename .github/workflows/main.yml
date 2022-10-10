@@ -41,7 +41,7 @@ jobs:
           skip-tag: 'true'
           skip-push: 'true'
         env:
-          TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Output Step'
         run: echo "new version tag ${{ steps.version-bump.outputs.newTag }}"
       - name: Update chart Version
@@ -61,5 +61,11 @@ jobs:
       - name: Push Changes
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ secrets.TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           tags: true
+      - name: Publish Helm charts
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          charts_dir: helm
+          branch: gh-pages
+          token: ${{ secrets.TOKEN }}
