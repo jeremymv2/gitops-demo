@@ -78,12 +78,18 @@ jobs:
         run: |
           sed -i 's/^appVersion.*/appVersion: "${{ steps.app-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
           cat helm/hello-gitops/Chart.yaml
+      - name: Get Versions
+        id: get_versions
+        run: |
+          echo "::set-output name=APP_VERSION::$(awk -F: '/version/{gsub(/\"/,\"\", $2); print $2}' package.json)"
+          echo "::set-output name=HELM_VERSION::$(awk -F: '/version/{gsub(/\"/,\"\", $2); print $2}' helm/package.json)"
       - name: Commit Files
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git commit -am "CI: Bump App Version ${{ steps.app-version-bump.outputs.newTag }}"
+          git commit -am "CI: New Version(s) App-> ${{ steps.get_versions.outputs.APP_VERSION }} Helm-> ${{ steps.get_versions.outputs.HELM_VERSION}}"
       - name: Tag repo
+        if: needs.detect_changes.outputs.bump_app == 'true'
         uses: rickstaa/action-create-tag@v1
         with:
           tag: ${{ steps.app-version-bump.outputs.newTag }}
