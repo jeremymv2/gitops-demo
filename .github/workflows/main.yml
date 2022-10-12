@@ -9,7 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     # Set job outputs to values from filter step
     outputs:
-      build: ${{ steps.filter.outputs.build }}
+      bump_app: ${{ steps.filter.outputs.bump_app }}
+      bump_helm: ${{ steps.filter.outputs.bump_helm }}
     steps:
     - name: Check out repository code
       uses: actions/checkout@v2
@@ -17,16 +18,11 @@ jobs:
         ref: main
 
     - uses: dorny/paths-filter@v2
-      id: filter-src
+      id: filter
       with:
         filters: |
           bump_app:
             - 'src/**'
-
-    - uses: dorny/paths-filter@v2
-      id: filter-helm
-      with:
-        filters: |
           bump_helm:
             - 'helm/**'
 
