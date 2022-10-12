@@ -63,7 +63,7 @@ jobs:
         id: chart-version-bump
         uses: 'phips28/gh-action-bump-version@master'
         with:
-          minor-wording:  'add,Adds,new'
+          minor-wording:  'adds,Adds,new'
           major-wording:  'MAJOR,cut-major'
           patch-wording:  'patch,fixes'     # Providing patch-wording will override commits
                                             # defaulting to a patch bump.
