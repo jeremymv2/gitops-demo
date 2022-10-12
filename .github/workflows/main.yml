@@ -26,7 +26,6 @@ jobs:
           bump_helm:
             - 'helm/**'
 
-
   bump_build_push:
     needs: detect_changes
     if: needs.detect_changes.outputs.bump_app == 'true' || needs.detect_changes.outputs.bump_helm == 'true'
