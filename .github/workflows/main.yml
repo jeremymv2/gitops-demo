@@ -29,8 +29,8 @@ jobs:
 
   bump_build_push:
     needs: detect_changes
-    if: ${{ needs.detect_changes.outputs.bump_app == 'true' }} || ${{ needs.detect_changes.outputs.bump_helm == 'true' }}
-    name: Bump Version
+    if: needs.detect_changes.outputs.bump_app == 'true' || needs.detect_changes.outputs.bump_helm == 'true'
+    name: Bump Version(s)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -38,7 +38,7 @@ jobs:
         with:
           ref: main
       - name: Bump Application Version
-        if: ${{ needs.detect_changes.outputs.bump_app == 'true' }}
+        if: needs.detect_changes.outputs.bump_app == 'true'
         id: app-version-bump
         uses: 'phips28/gh-action-bump-version@master'
         with:
@@ -53,7 +53,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Output New App Version'
-        if: ${{ needs.detect_changes.outputs.bump_app == 'true' }}
+        if: needs.detect_changes.outputs.bump_app == 'true'
         run: echo "New app version tag ${{ steps.version-bump.outputs.newTag }}"
       - name: Bump Main Chart Version
         id: chart-version-bump
@@ -75,7 +75,7 @@ jobs:
           sed -i 's/^version.*/version: "${{ steps.chart-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
           cat helm/hello-gitops/Chart.yaml
       - name: Update Chart App Version
-        if: ${{ needs.detect_changes.outputs.bump_app == 'true' }}
+        if: needs.detect_changes.outputs.bump_app == 'true'
         run: |
           sed -i 's/^appVersion.*/appVersion: "${{ steps.app-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
           cat helm/hello-gitops/Chart.yaml
