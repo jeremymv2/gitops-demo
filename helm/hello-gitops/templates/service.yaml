@@ -4,12 +4,15 @@ metadata:
   name: {{ include "hello-gitops.fullname" . }}
   labels:
     {{- include "hello-gitops.labels" . | nindent 4 }}
+  annotations:
+    appVersion: {{ .Values.image.tag | default .Chart.AppVersion }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: 8080
       protocol: TCP
       name: http
   selector:
     {{- include "hello-gitops.selectorLabels" . | nindent 4 }}
+  type: {{ .Values.service.type }}

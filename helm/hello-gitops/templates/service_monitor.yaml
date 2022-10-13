@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "hello-gitops.fullname" . }}
+  labels:
+    {{- include "hello-gitops.labels" . | nindent 4 }}
+  annotations:
+    appVersion: {{ .Values.image.tag | default .Chart.AppVersion }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "hello-gitops.labels" . | nindent 6 }}
+  endpoints:
+  - port: http
+  namespaceSelector:
+    any: true
