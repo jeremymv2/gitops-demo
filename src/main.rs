@@ -1,66 +1,62 @@
-use hyper::{
-    header::CONTENT_TYPE,
-    service::{make_service_fn, service_fn},
-    Body, Request, Response, Server,
-};
-use prometheus::{Counter, Encoder, Gauge, HistogramVec, TextEncoder};
+#[macro_use]
+extern crate rocket;
 
-use lazy_static::lazy_static;
-use prometheus::{labels, opts, register_counter, register_gauge, register_histogram_vec};
+use once_cell::sync::Lazy;
+use prometheus::{opts, IntCounterVec};
+use rocket_prometheus::PrometheusMetrics;
 
-lazy_static! {
-    static ref HTTP_COUNTER: Counter = register_counter!(opts!(
-        "example_http_requests_total",
-        "Number of HTTP requests made.",
-        labels! {"handler" => "all",}
-    ))
-    .unwrap();
-    static ref HTTP_BODY_GAUGE: Gauge = register_gauge!(opts!(
-        "example_http_response_size_bytes",
-        "The HTTP response sizes in bytes.",
-        labels! {"handler" => "all",}
-    ))
-    .unwrap();
-    static ref HTTP_REQ_HISTOGRAM: HistogramVec = register_histogram_vec!(
-        "example_http_request_duration_seconds",
-        "The HTTP request latencies in seconds.",
-        &["handler"]
-    )
-    .unwrap();
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+// ...
+
+static NAME_COUNTER: Lazy<IntCounterVec> = Lazy::new(|| {
+    IntCounterVec::new(opts!("name_counter", "Count of names"), &["name"])
+        .expect("Could not create lazy IntCounterVec")
+});
+
+mod routes {
+    use rocket::serde::json::Json;
+    use serde::Deserialize;
+
+    use super::{NAME_COUNTER, VERSION};
+
+    #[get("/hello/<name>?<caps>")]
+    pub fn hello(name: &str, caps: Option<bool>) -> String {
+        let name = caps
+            .unwrap_or_default()
+            .then(|| name.to_uppercase())
+            .unwrap_or_else(|| name.to_string());
+        NAME_COUNTER.with_label_values(&[&name]).inc();
+        format!("Hello, {}! I am running version: v{}", name, VERSION)
+    }
+
+    #[derive(Deserialize)]
+    pub struct Person {
+        age: u8,
+    }
+
+    #[post("/hello/<name>?<caps>", format = "json", data = "<person>")]
+    pub fn hello_post(name: String, person: Json<Person>, caps: Option<bool>) -> String {
+        let name = caps
+            .unwrap_or_default()
+            .then(|| name.to_uppercase())
+            .unwrap_or_else(|| name.to_string());
+        NAME_COUNTER.with_label_values(&[&name]).inc();
+        format!("Hello, {} year old named {}!", person.age, name)
+    }
 }
 
-async fn serve_req(_req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
-    let encoder = TextEncoder::new();
-
-    HTTP_COUNTER.inc();
-    let timer = HTTP_REQ_HISTOGRAM.with_label_values(&["all"]).start_timer();
-
-    let metric_families = prometheus::gather();
-    let mut buffer = vec![];
-    encoder.encode(&metric_families, &mut buffer).unwrap();
-    HTTP_BODY_GAUGE.set(buffer.len() as f64);
-
-    let response = Response::builder()
-        .status(200)
-        .header(CONTENT_TYPE, encoder.format_type())
-        .body(Body::from(buffer))
+#[launch]
+fn rocket() -> _ {
+    println!("Version {}", VERSION);
+    let prometheus = PrometheusMetrics::new();
+    prometheus
+        .registry()
+        .register(Box::new(NAME_COUNTER.clone()))
         .unwrap();
 
-    timer.observe_duration();
-
-    Ok(response)
-}
-
-#[tokio::main]
-async fn main() {
-    let addr = ([127, 0, 0, 1], 8080).into();
-    println!("Listening on http://{}", addr);
-
-    let serve_future = Server::bind(&addr).serve(make_service_fn(|_| async {
-        Ok::<_, hyper::Error>(service_fn(serve_req))
-    }));
-
-    if let Err(err) = serve_future.await {
-        eprintln!("server error: {}", err);
-    }
+    rocket::build()
+        .attach(prometheus.clone())
+        .mount("/", routes![routes::hello, routes::hello_post])
+        .mount("/metrics", prometheus)
 }
