@@ -91,7 +91,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ secrets.DOCKER_USERNAME }}/hello-gitops-rust
-          tags: ${{ steps.version-bump.outputs.newTag }}, latest
+          tags: ${{ steps.app-version-bump.outputs.newTag }}, latest
       - name: Get Versions
         id: get_versions
         run: |
