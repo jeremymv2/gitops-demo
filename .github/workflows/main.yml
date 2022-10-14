@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: main
-      - name: Bump Application Version
+      - name: Bump Application package.json
         if: needs.detect_changes.outputs.bump_app == 'true'
         id: app-version-bump
         uses: 'phips28/gh-action-bump-version@master'
@@ -54,6 +54,13 @@ jobs:
       - name: 'Output New App Version'
         if: needs.detect_changes.outputs.bump_app == 'true'
         run: echo "New app version tag ${{ steps.version-bump.outputs.newTag }}"
+      - name: Update Application Version
+        if: needs.detect_changes.outputs.bump_app == 'true'
+        run: |
+          sed -i 's/^appVersion.*/appVersion: "${{ steps.app-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
+          sed -i 's/^version.*/version: "${{ steps.app-version-bump.outputs.newTag }}"/' Cargo.toml
+          cat helm/hello-gitops/Chart.yaml
+          cat Cargo.toml
       - name: Bump Main Chart Version
         id: chart-version-bump
         uses: 'phips28/gh-action-bump-version@master'
@@ -78,6 +85,13 @@ jobs:
         run: |
           sed -i 's/^appVersion.*/appVersion: "${{ steps.app-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
           cat helm/hello-gitops/Chart.yaml
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v1.1.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: ${{ secrets.DOCKER_USERNAME }}/hello-gitops-rust
+          tags: ${{ steps.version-bump.outputs.newTag }}, latest
       - name: Get Versions
         id: get_versions
         run: |
