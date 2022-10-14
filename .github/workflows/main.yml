@@ -79,7 +79,9 @@ jobs:
       - name: Update Main Chart Version
         run: |
           sed -i 's/^version.*/version: "${{ steps.chart-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
+          sed -i 's/^  version.*/  version: "${{ steps.chart-version-bump.outputs.newTag }}"/' argo/dev/Chart.yaml
           cat helm/hello-gitops/Chart.yaml
+          cat argo/dev/Chart.yaml
       - name: Update Chart App Version
         if: needs.detect_changes.outputs.bump_app == 'true'
         run: |
