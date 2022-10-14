@@ -46,7 +46,7 @@ mod routes {
 
 #[launch]
 fn rocket() -> _ {
-    println!("Version {}", VERSION);
+    println!("Running Version: {}", VERSION);
     let prometheus = PrometheusMetrics::new();
     prometheus
         .registry()
