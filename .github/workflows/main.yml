@@ -58,7 +58,7 @@ jobs:
         if: needs.detect_changes.outputs.bump_app == 'true'
         run: |
           sed -i 's/^appVersion.*/appVersion: "${{ steps.app-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
-          sed -i 's/^version.*/version: "${{ steps.app-version-bump.outputs.newTag }}"/' Cargo.toml
+          sed -i 's/^version.*/version = "${{ steps.app-version-bump.outputs.newTag }}"/' Cargo.toml
           cat helm/hello-gitops/Chart.yaml
           cat Cargo.toml
       - name: Bump Main Chart Version
