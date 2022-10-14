@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "hello-gitops.fullname" . }}
+  name: {{ include "hello-gitops-rust.fullname" . }}
   labels:
-    {{- include "hello-gitops.labels" . | nindent 4 }}
+    {{- include "hello-gitops-rust.labels" . | nindent 4 }}
   annotations:
     appVersion: {{ .Values.image.tag | default .Chart.AppVersion }}
 spec:
@@ -13,7 +13,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "hello-gitops.selectorLabels" . | nindent 6 }}
+      {{- include "hello-gitops-rust.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -22,7 +22,7 @@ spec:
         appVersion: {{ .Values.image.tag | default .Chart.AppVersion }}
       {{- end }}
       labels:
-        {{- include "hello-gitops.selectorLabels" . | nindent 8 }}
+        {{- include "hello-gitops-rust.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Chart.Name }}

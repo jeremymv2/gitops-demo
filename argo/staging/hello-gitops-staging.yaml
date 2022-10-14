@@ -1,5 +1,5 @@
 metadata:
-  name: hello-gitops-staging
+  name: hello-gitops-rust-staging
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:

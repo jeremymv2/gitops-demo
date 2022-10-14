@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "hello-gitops.name" -}}
+{{- define "hello-gitops-rust.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "hello-gitops.fullname" -}}
+{{- define "hello-gitops-rust.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "hello-gitops.chart" -}}
+{{- define "hello-gitops-rust.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "hello-gitops.labels" -}}
-helm.sh/chart: {{ include "hello-gitops.chart" . }}
-{{ include "hello-gitops.selectorLabels" . }}
+{{- define "hello-gitops-rust.labels" -}}
+helm.sh/chart: {{ include "hello-gitops-rust.chart" . }}
+{{ include "hello-gitops-rust.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "hello-gitops.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "hello-gitops.name" . }}
+{{- define "hello-gitops-rust.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "hello-gitops-rust.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "hello-gitops.serviceAccountName" -}}
+{{- define "hello-gitops-rust.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "hello-gitops.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "hello-gitops-rust.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
