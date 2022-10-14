@@ -7,8 +7,6 @@ use rocket_prometheus::PrometheusMetrics;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-// ...
-
 static NAME_COUNTER: Lazy<IntCounterVec> = Lazy::new(|| {
     IntCounterVec::new(opts!("name_counter", "Count of names"), &["name"])
         .expect("Could not create lazy IntCounterVec")
