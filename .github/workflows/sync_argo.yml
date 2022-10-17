@@ -1,3 +1,5 @@
+name: argo_sync
+
 on: deployment_status
 jobs:
   publish:
