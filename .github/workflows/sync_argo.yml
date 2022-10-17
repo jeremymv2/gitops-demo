@@ -1,0 +1,26 @@
+on: deployment_status
+jobs:
+  publish:
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: main
+      - name: Get Versions
+        id: get_dev_versions
+        run: |
+          echo "::set-output name=APP_VERSION::$(awk -F: '/version/{gsub(/"/,"", $2); print $2}' package.json)"
+          echo "::set-output name=HELM_VERSION::$(awk -F: '/version/{gsub(/"/,"", $2); print $2}' helm/package.json)"
+      - name: Set Argo Dev Version
+        uses: clowdhaus/argo-cd-action/@main
+        with:
+          version: 2.4.11
+          command: app patch hello-gitops-dev
+          options: >
+            --patch '{"metadata": { "labels": { "appVersion": "${{ steps.get_dev_versions.outputs.APP_VERSION }}" , "helmVersion": "${{ setps.get_dev_versions.outputs.HELM_VERSION }}" }}}'
+            --type merge
+            --server a8b22bdfad01640ee85f14dd68261e9f-201506978.us-east-1.elb.amazonaws.com
+            --insecure
+            --auth-token ${{ secrets.ARGOCD_TOKEN }}
