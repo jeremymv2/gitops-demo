@@ -78,14 +78,18 @@ jobs:
           cat helm/hello-gitops/Chart.yaml
           cat Cargo.toml
       - name: Update Main Chart Version
+        id: update_main_chart_version
         run: |
+          echo "::set-output name=MAIN_CHART::Helm:${{ steps.chart-version-bump.outputs.newTag }}"
           sed -i 's/^version.*/version: "${{ steps.chart-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
           sed -i 's/version.*/version: "${{ steps.chart-version-bump.outputs.newTag }}"/g' argo/dev/Chart.yaml
           cat helm/hello-gitops/Chart.yaml
           cat argo/dev/Chart.yaml
       - name: Update Chart App Version
+        id: update_main_chart_app_version
         if: needs.detect_changes.outputs.bump_app == 'true'
         run: |
+          echo "::set-output name=CHART_APP_VERSION::App:${{ steps.app-version-bump.outputs.newTag }}"
           sed -i 's/^appVersion.*/appVersion: "${{ steps.app-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
           cat helm/hello-gitops/Chart.yaml
       - name: Build and push Docker image
@@ -105,7 +109,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git commit -am 'CI: ${{ env.commit_msg }}'
+          git commit -am 'CI: ${{ steps.update_main_chart_version.outputs.MAIN_CHART }} ${{ steps.update_main_chart_app_version.outputs.CHART_APP_VERSION }}'
       - name: Tag repo
         if: needs.detect_changes.outputs.bump_app == 'true'
         uses: rickstaa/action-create-tag@v1
