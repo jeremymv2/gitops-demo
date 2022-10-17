@@ -76,7 +76,7 @@ jobs:
       - name: Update Main Chart Version
         id: update_main_chart_version
         run: |
-          echo "::set-output name=MAIN_CHART::'Helm->${{ steps.chart-version-bump.outputs.newTag }} '"
+          echo "::set-output name=MAIN_CHART::Helm->${{ steps.chart-version-bump.outputs.newTag }} "
           sed -i 's/^version.*/version: "${{ steps.chart-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
           sed -i 's/version.*/version: "${{ steps.chart-version-bump.outputs.newTag }}"/g' argo/dev/Chart.yaml
           cat helm/hello-gitops/Chart.yaml
