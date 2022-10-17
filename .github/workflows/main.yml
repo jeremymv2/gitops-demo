@@ -4,9 +4,6 @@ on:
   push:
     branches: [ main ]
 
-env:
-  COMMIT_MSG_DETAIL: ""
-
 jobs:
   detect_changes:
     runs-on: ubuntu-latest
@@ -69,12 +66,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGEJSON_DIR:  'helm'
-      - name: 'Prepare commit message'
-        run: echo "COMMIT_MSG_DETAIL='HelmVersion: ${{ steps.chart-version-bump.outputs.newTag }}'"
+      - name: Prepare commit message
+        run: |
+          echo "COMMIT_MSG_DETAIL='HelmVersion: ${{ steps.chart-version-bump.outputs.newTag }}' >> $GITHUB_ENV"
       - name: Update Application Version
         if: needs.detect_changes.outputs.bump_app == 'true'
         run: |
-          echo "COMMIT_MSG_DETAIL='${{ env.COMMIT_MSG_DETAIL }} AppVersion: ${{ steps.app-version-bump.outputs.newTag }}'"
+          echo "COMMIT_MSG_DETAIL='${{ env.COMMIT_MSG_DETAIL }} AppVersion: ${{ steps.app-version-bump.outputs.newTag }}' >> $GITHUB_ENV"
           sed -i 's/^appVersion.*/appVersion: "${{ steps.app-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
           sed -i 's/^version.*/version = "${{ steps.app-version-bump.outputs.newTag }}"/' Cargo.toml
           cat helm/hello-gitops/Chart.yaml
