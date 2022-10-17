@@ -4,6 +4,9 @@ on:
   push:
     branches: [ main ]
 
+env:
+  COMMIT_MSG_DETAIL: ""
+
 jobs:
   detect_changes:
     runs-on: ubuntu-latest
@@ -51,16 +54,6 @@ jobs:
           skip-push: 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: 'Output New App Version'
-        if: needs.detect_changes.outputs.bump_app == 'true'
-        run: echo "New app version tag ${{ steps.version-bump.outputs.newTag }}"
-      - name: Update Application Version
-        if: needs.detect_changes.outputs.bump_app == 'true'
-        run: |
-          sed -i 's/^appVersion.*/appVersion: "${{ steps.app-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
-          sed -i 's/^version.*/version = "${{ steps.app-version-bump.outputs.newTag }}"/' Cargo.toml
-          cat helm/hello-gitops/Chart.yaml
-          cat Cargo.toml
       - name: Bump Main Chart Version
         id: chart-version-bump
         uses: 'phips28/gh-action-bump-version@master'
@@ -76,10 +69,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGEJSON_DIR:  'helm'
+      - name: 'Prepare commit message'
+        run: echo "COMMIT_MSG_DETAIL="HelmVersion: ${{ steps.chart-version-bump.outputs.newTag }}""
+      - name: Update Application Version
+        if: needs.detect_changes.outputs.bump_app == 'true'
+        run: |
+          echo "COMMIT_MSG_DETAIL="${{ env.COMMIT_MSG_DETAIL }} AppVersion: ${{ steps.app-version-bump.outputs.newTag }}""
+          sed -i 's/^appVersion.*/appVersion: "${{ steps.app-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
+          sed -i 's/^version.*/version = "${{ steps.app-version-bump.outputs.newTag }}"/' Cargo.toml
+          cat helm/hello-gitops/Chart.yaml
+          cat Cargo.toml
       - name: Update Main Chart Version
         run: |
           sed -i 's/^version.*/version: "${{ steps.chart-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
-          sed -i 's/^  version.*/  version: "${{ steps.chart-version-bump.outputs.newTag }}"/' argo/dev/Chart.yaml
+          sed -i 's/version.*/version: "${{ steps.chart-version-bump.outputs.newTag }}"/g' argo/dev/Chart.yaml
           cat helm/hello-gitops/Chart.yaml
           cat argo/dev/Chart.yaml
       - name: Update Chart App Version
@@ -104,7 +107,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git commit -am "CI: New Version(s) App-> ${{ steps.get_versions.outputs.APP_VERSION }} Helm-> ${{ steps.get_versions.outputs.HELM_VERSION}}"
+          git commit -am "CI: ${{ env.COMMIT_MSG_DETAIL }}"
       - name: Tag repo
         if: needs.detect_changes.outputs.bump_app == 'true'
         uses: rickstaa/action-create-tag@v1
