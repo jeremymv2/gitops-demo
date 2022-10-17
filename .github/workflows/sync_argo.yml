@@ -1,8 +1,11 @@
 name: argo_sync
 
-on: deployment_status
+on:
+  check_run:
+    types: [completed]
+
 jobs:
-  publish:
+  sync:
     if: github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
     steps:
@@ -10,6 +13,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: main
+      - name: Get Deployment URL
+        run: echo "DEPLOYMENT_URL=$(echo "${{ github.event.check_run.output.summary }}" | grep -o "href\=.*>https" | cut -c 7-43)" >> $GITHUB_ENV
+      - run: echo $DEPLOYMENT_URL
       - name: Get Versions
         id: get_dev_versions
         run: |
