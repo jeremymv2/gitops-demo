@@ -19,7 +19,7 @@ jobs:
         uses: clowdhaus/argo-cd-action/@main
         with:
           version: 2.4.11
-          command: app patch hello-gitops-dev
+          command: app patch hello-gitops-rust-dev
           options: >
             --patch '{"metadata": { "labels": { "appVersion": "${{ steps.get_dev_versions.outputs.APP_VERSION }}" , "helmVersion": "${{ setps.get_dev_versions.outputs.HELM_VERSION }}" }}}'
             --type merge
