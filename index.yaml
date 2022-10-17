@@ -94,6 +94,16 @@ entries:
   hello-gitops-rust:
   - apiVersion: v2
     appVersion: 0.0.13
+    created: "2022-10-17T13:04:23.802983355Z"
+    description: A Helm chart for Kubernetes
+    digest: cba9def2aa4cb9de30c94ed9ec7970e11f6cd557dc72f4855ab771dba4f3ce58
+    name: hello-gitops-rust
+    type: application
+    urls:
+    - https://jeremymv2.github.io/gitops-demo/hello-gitops-rust-0.1.13.tgz
+    version: 0.1.13
+  - apiVersion: v2
+    appVersion: 0.0.13
     created: "2022-10-14T18:05:24.601292517Z"
     description: A Helm chart for Kubernetes
     digest: 80e1d9007cf88f3de3ac8106d797fd93aa01ee0d371e6e3b7255c11f2bd811ae
@@ -122,4 +132,4 @@ entries:
     urls:
     - https://jeremymv2.github.io/gitops-demo/hello-gitops-rust-0.1.10.tgz
     version: 0.1.10
-generated: "2022-10-14T18:05:24.599610107Z"
+generated: "2022-10-17T13:04:23.802343045Z"
