@@ -69,6 +69,7 @@ jobs:
       - name: Prepare commit message
         run: |
           echo "COMMIT_MSG_DETAIL='HelmVersion: ${{ steps.chart-version-bump.outputs.newTag }}' >> $GITHUB_ENV"
+          cat $GITHUB_ENV
       - name: Update Application Version
         if: needs.detect_changes.outputs.bump_app == 'true'
         run: |
@@ -77,6 +78,7 @@ jobs:
           sed -i 's/^version.*/version = "${{ steps.app-version-bump.outputs.newTag }}"/' Cargo.toml
           cat helm/hello-gitops/Chart.yaml
           cat Cargo.toml
+          cat $GITHUB_ENV
       - name: Update Main Chart Version
         run: |
           sed -i 's/^version.*/version: "${{ steps.chart-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
@@ -103,9 +105,10 @@ jobs:
           echo "::set-output name=HELM_VERSION::$(awk -F: '/version/{gsub(/"/,"", $2); print $2}' helm/package.json)"
       - name: Commit Files
         run: |
+          cat $GITHUB_ENV
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git commit -am "CI: ${{ env.COMMIT_MSG_DETAIL }}"
+          git commit -am 'CI: ${{ env.COMMIT_MSG_DETAIL }}'
       - name: Tag repo
         if: needs.detect_changes.outputs.bump_app == 'true'
         uses: rickstaa/action-create-tag@v1
