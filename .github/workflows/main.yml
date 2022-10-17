@@ -68,11 +68,11 @@ jobs:
           PACKAGEJSON_DIR:  'helm'
       - name: Prepare commit message
         run: |
-          echo "commit_msg='HelmVersion: ${{ steps.chart-version-bump.outputs.newTag }}' >> $GITHUB_ENV"
+          echo "commit_msg='HelmVersion: ${{ steps.chart-version-bump.outputs.newTag }} ' >> $GITHUB_ENV"
       - name: Update Application Version
         if: needs.detect_changes.outputs.bump_app == 'true'
         run: |
-          echo "commit_msg='${{ env.commit_msg }} AppVersion: ${{ steps.app-version-bump.outputs.newTag }}' >> $GITHUB_ENV"
+          echo "commit_msg='${{ env.commit_msg }}AppVersion: ${{ steps.app-version-bump.outputs.newTag }}' >> $GITHUB_ENV"
           sed -i 's/^appVersion.*/appVersion: "${{ steps.app-version-bump.outputs.newTag }}"/' helm/hello-gitops/Chart.yaml
           sed -i 's/^version.*/version = "${{ steps.app-version-bump.outputs.newTag }}"/' Cargo.toml
           cat helm/hello-gitops/Chart.yaml
