@@ -30,3 +30,13 @@ jobs:
             --server a8b22bdfad01640ee85f14dd68261e9f-201506978.us-east-1.elb.amazonaws.com
             --insecure
             --auth-token ${{ secrets.ARGOCD_TOKEN }}
+      - name: Sync Argo Dev App
+        uses: clowdhaus/argo-cd-action/@main
+        with:
+          version: 2.4.11
+          command: app sync hello-gitops-rust-dev
+          options: >
+            --force
+            --server a8b22bdfad01640ee85f14dd68261e9f-201506978.us-east-1.elb.amazonaws.com
+            --insecure
+            --auth-token ${{ secrets.ARGOCD_TOKEN }}
