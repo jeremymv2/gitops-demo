@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate rocket;
+
 use once_cell::sync::Lazy;
 use prometheus::{opts, IntCounterVec};
 use rocket_prometheus::PrometheusMetrics;
