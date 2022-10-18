@@ -17,8 +17,8 @@ jobs:
       - name: Get Versions
         id: get_dev_versions
         run: |
-          echo "::set-output name=APP_VERSION::$(awk -F: '/version/{gsub(/"/,"", $2); print $2}' package.json)"
-          echo "::set-output name=HELM_VERSION::$(awk -F: '/version/{gsub(/"/,"", $2); print $2}' helm/package.json)"
+          echo "::set-output name=APP_VERSION::$(awk -F: '/version/{gsub(/"| /,"", $2); print $2}' package.json)"
+          echo "::set-output name=HELM_VERSION::$(awk -F: '/version/{gsub(/"| /,"", $2); print $2}' helm/package.json)"
       - name: Set Argo Dev Version
         uses: clowdhaus/argo-cd-action/@main
         with:
